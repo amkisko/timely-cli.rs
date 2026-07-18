@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = ["timely_lib", "timely"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+authors = ["amkisko"]
+license = "MIT"
+repository = "https://github.com/amkisko/timely-cli.rs"
+homepage = "https://github.com/amkisko/timely-cli.rs"
+
+[workspace.lints.rust]
+# deny (not forbid): home config applies defaults via env::set_var at startup
+# (edition 2024 marks set_var unsafe); see timely_lib::config.
+unsafe_code = "deny"
+
+[workspace.lints.clippy]
+type_complexity = "warn"
+too_many_arguments = "warn"
