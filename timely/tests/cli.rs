@@ -7,20 +7,22 @@ fn timely() -> Command {
 
 #[test]
 fn version_flag_prints_version() {
+    let expected = format!("timely {}", env!("CARGO_PKG_VERSION"));
     timely()
         .arg("--version")
         .assert()
         .success()
-        .stdout(predicate::str::contains("timely 0.1.0"));
+        .stdout(predicate::str::contains(expected));
 }
 
 #[test]
 fn version_subcommand_prints_version() {
+    let expected = format!("timely {}", env!("CARGO_PKG_VERSION"));
     timely()
         .arg("version")
         .assert()
         .success()
-        .stdout(predicate::str::contains("timely 0.1.0"));
+        .stdout(predicate::str::contains(expected));
 }
 
 #[test]

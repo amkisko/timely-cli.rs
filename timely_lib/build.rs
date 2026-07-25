@@ -23,12 +23,27 @@ const FALLBACK_OPENAPI: &str = r#"{
     "schemas": {}
   }
 }"#;
-const OPENAPI_RELATIVE_PATH: &str = "../tmp/openapi/openapi.json";
+const OPENAPI_RELATIVE_PATHS: &[&str] = &[
+    "openapi/openapi.json",
+    "../tmp/openapi/openapi.json",
+];
+
+fn resolve_openapi_path(root: &PathBuf) -> PathBuf {
+    for relative in OPENAPI_RELATIVE_PATHS {
+        let candidate = root.join(relative);
+        if candidate.is_file() {
+            return candidate;
+        }
+    }
+    root.join(OPENAPI_RELATIVE_PATHS[0])
+}
 
 fn main() {
     let root = PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("manifest dir"));
-    let spec_path = root.join(OPENAPI_RELATIVE_PATH);
-    println!("cargo:rerun-if-changed={}", spec_path.display());
+    let spec_path = resolve_openapi_path(&root);
+    for relative in OPENAPI_RELATIVE_PATHS {
+        println!("cargo:rerun-if-changed={}", root.join(relative).display());
+    }
     println!("cargo:rerun-if-changed={}", root.join("build.rs").display());
 
     println!("cargo:rerun-if-env-changed=TIMELY_ALLOW_EMPTY_OPENAPI");

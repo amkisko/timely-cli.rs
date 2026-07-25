@@ -115,7 +115,11 @@ fn is_vendored_openapi_json(path: &Path, root: &Path) -> bool {
     path.strip_prefix(root)
         .ok()
         .and_then(|p| p.to_str())
-        .is_some_and(|p| p == "openapi/openapi.json" || p == "tmp/openapi/openapi.json")
+        .is_some_and(|p| {
+            p == "timely_lib/openapi/openapi.json"
+                || p == "openapi/openapi.json"
+                || p == "tmp/openapi/openapi.json"
+        })
 }
 
 fn is_excluded_policy_file(path: &Path, root: &Path) -> bool {

@@ -10,7 +10,7 @@ require "uri"
 SOURCE_URL = "https://developer.timely.com"
 ROOT = File.expand_path("..", __dir__)
 DOCS_SPEC_DIR = "tmp/docs/spec"
-OPENAPI_JSON_PATH = "tmp/openapi/openapi.json"
+OPENAPI_JSON_PATH = "timely_lib/openapi/openapi.json"
 API_SPEC_PATH = "tmp/api_spec.md"
 WRITE = ARGV.include?("--write") || !ARGV.include?("--check")
 MAX_PART_LINES = 260

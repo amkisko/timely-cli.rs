@@ -97,7 +97,7 @@ mod tests {
             .expect("paths object");
         assert!(
             !paths.is_empty(),
-            "embedded OpenAPI paths must not be empty; restore tmp/openapi/openapi.json"
+            "embedded OpenAPI paths must not be empty; restore timely_lib/openapi/openapi.json"
         );
     }
 
