@@ -60,16 +60,30 @@ impl Api {
     }
 
     pub fn load_credential(&self) -> Result<Option<StoredCredential>> {
-        match self.keyring_entry()?.get_password() {
+        let entry = match self.keyring_entry() {
+            Ok(entry) => entry,
+            // No Secret Service / keyring backend (common on CI runners).
+            Err(_) => return Ok(None),
+        };
+        match entry.get_password() {
             Ok(value) => Ok(Some(serde_json::from_str(&value)?)),
-            Err(keyring::Error::NoEntry) => Ok(None),
+            Err(keyring::Error::NoEntry)
+            | Err(keyring::Error::NoStorageAccess(_))
+            | Err(keyring::Error::PlatformFailure(_)) => Ok(None),
             Err(err) => Err(err).context("failed to read credential from OS keyring"),
         }
     }
 
     pub fn delete_credential(&self) -> Result<()> {
-        match self.keyring_entry()?.delete_credential() {
-            Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
+        let entry = match self.keyring_entry() {
+            Ok(entry) => entry,
+            Err(_) => return Ok(()),
+        };
+        match entry.delete_credential() {
+            Ok(())
+            | Err(keyring::Error::NoEntry)
+            | Err(keyring::Error::NoStorageAccess(_))
+            | Err(keyring::Error::PlatformFailure(_)) => Ok(()),
             Err(err) => Err(err).context("failed to delete credential from OS keyring"),
         }
     }
