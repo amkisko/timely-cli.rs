@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Make the local Memory reader optional for smaller builds that do not need it.
+- Embed the OpenAPI document as gzip instead of raw JSON to shrink the release binary.
+
 ## 0.1.1 (2026-07-25)
 
 - Shrink the release binary with thin LTO, symbol stripping, and a single codegen unit.

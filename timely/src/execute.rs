@@ -12,6 +12,7 @@ use crate::cli_commands::AuthCommand as AuthArgs;
 use crate::cli_config::ConfigCommand as ConfigArgs;
 use crate::commands;
 use crate::config_cmd;
+#[cfg(feature = "memory")]
 use crate::memory;
 use crate::run_context::RunContext;
 
@@ -22,11 +23,12 @@ pub fn command_requires_api(command: &Commands) -> bool {
             command: AuthSubcommand::Status | AuthSubcommand::Export { .. },
         })
         | Commands::Config(_)
-        | Commands::Memory(_)
         | Commands::Completions { .. }
         | Commands::Man
         | Commands::Version
         | Commands::Batch { .. } => false,
+        #[cfg(feature = "memory")]
+        Commands::Memory(_) => false,
         Commands::Mcp(_) => true,
         Commands::Auth(_) | Commands::Api(_) | Commands::Call(_) | Commands::Request(_) => true,
     }
@@ -87,6 +89,7 @@ pub async fn execute_command_value(
         Commands::Request(cmd) => commands::request_command_value(api, cmd)
             .await
             .map_err(TimelyError::from_anyhow),
+        #[cfg(feature = "memory")]
         Commands::Memory(cmd) => {
             memory::memory_command_value(cmd).map_err(TimelyError::from_anyhow)
         }

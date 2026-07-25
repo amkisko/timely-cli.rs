@@ -1,6 +1,9 @@
 use std::collections::HashMap;
+use std::io::Write;
 use std::{env, fs, path::PathBuf};
 
+use flate2::Compression;
+use flate2::write::GzEncoder;
 use heck::ToSnakeCase;
 use serde_json::Value;
 
@@ -74,8 +77,13 @@ fn main() {
     };
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("out dir"));
-    let openapi_out = out_dir.join("openapi.json");
-    fs::write(&openapi_out, &spec).expect("write generated OpenAPI");
+    let openapi_gz_out = out_dir.join("openapi.json.gz");
+    let mut encoder = GzEncoder::new(Vec::new(), Compression::best());
+    encoder
+        .write_all(&spec)
+        .expect("compress OpenAPI payload");
+    let compressed = encoder.finish().expect("finish OpenAPI gzip");
+    fs::write(&openapi_gz_out, compressed).expect("write generated OpenAPI gzip");
 
     let spec_value: Value = serde_json::from_slice(&spec).expect("parse OpenAPI JSON");
     let api_methods = generate_api_methods(&spec_value);

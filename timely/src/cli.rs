@@ -8,7 +8,13 @@ pub use crate::cli_commands::{
     SecretProvider, SourceCommand, SpecCommand, SpecSubcommand,
 };
 pub use crate::cli_config::{ConfigCommand, ConfigSubcommand};
+#[cfg(feature = "memory")]
 pub use crate::cli_memory::{MemoryCommand, MemorySubcommand};
+
+#[cfg(feature = "memory")]
+pub const ABOUT: &str = "Timely API CLI, MCP server, and local Memory reader";
+#[cfg(not(feature = "memory"))]
+pub const ABOUT: &str = "Timely API CLI and MCP server";
 
 pub const LONG_ABOUT: &str = "\
 Query Timely accounts, projects, time entries, and more from the terminal.
@@ -47,7 +53,7 @@ Run `timely help <command>` for command-specific examples.";
     name = "timely",
     bin_name = "timely",
     version,
-    about = "Timely API CLI, MCP server, and local Memory reader",
+    about = ABOUT,
     long_about = LONG_ABOUT,
     after_help = AFTER_HELP
 )]
@@ -199,6 +205,7 @@ pub enum Commands {
     )]
     Request(RequestCommand),
 
+    #[cfg(feature = "memory")]
     #[command(about = "Read the local Memory database", next_help_heading = "Local")]
     Memory(MemoryCommand),
 

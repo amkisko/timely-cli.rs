@@ -3,6 +3,7 @@ use std::io::{BufRead, Write};
 use anyhow::{Result, anyhow};
 use serde_json::{Value, json};
 
+#[cfg(feature = "memory")]
 use crate::memory;
 use timely_lib::Api;
 use timely_lib::api_templates;
@@ -65,6 +66,7 @@ fn tools() -> Result<Value> {
         }
     })];
     tools.extend(api_templates::tools());
+    #[cfg(feature = "memory")]
     tools.extend(memory::tools());
     for op in operations()? {
         tools.push(json!({
@@ -97,14 +99,26 @@ async fn tool_call(api: &Api, params: Value) -> Result<Value> {
         .get("arguments")
         .cloned()
         .unwrap_or_else(|| json!({}));
-    let response = if let Some(result) = memory::maybe_call(name, &arguments) {
-        result?
-    } else if let Some(result) = api_templates::maybe_call(api, name, &arguments).await {
-        result?
-    } else if name == "timely_request" {
-        raw_request(api, &arguments).await?
-    } else {
-        operation_request(api, name, &arguments).await?
+    let response = {
+        #[cfg(feature = "memory")]
+        if let Some(result) = memory::maybe_call(name, &arguments) {
+            result?
+        } else if let Some(result) = api_templates::maybe_call(api, name, &arguments).await {
+            result?
+        } else if name == "timely_request" {
+            raw_request(api, &arguments).await?
+        } else {
+            operation_request(api, name, &arguments).await?
+        }
+
+        #[cfg(not(feature = "memory"))]
+        if let Some(result) = api_templates::maybe_call(api, name, &arguments).await {
+            result?
+        } else if name == "timely_request" {
+            raw_request(api, &arguments).await?
+        } else {
+            operation_request(api, name, &arguments).await?
+        }
     };
     Ok(json!({
         "content": [{ "type": "text", "text": serde_json::to_string_pretty(&response)? }]

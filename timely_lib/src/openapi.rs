@@ -1,7 +1,23 @@
+use std::io::Read;
+use std::sync::OnceLock;
+
 use anyhow::{Result, anyhow};
+use flate2::read::GzDecoder;
 use serde_json::Value;
 
-pub const OPENAPI_JSON: &str = include_str!(concat!(env!("OUT_DIR"), "/openapi.json"));
+const OPENAPI_JSON_GZ: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/openapi.json.gz"));
+
+fn openapi_json() -> &'static str {
+    static OPENAPI_JSON: OnceLock<String> = OnceLock::new();
+    OPENAPI_JSON.get_or_init(|| {
+        let mut decoder = GzDecoder::new(OPENAPI_JSON_GZ);
+        let mut json = String::new();
+        decoder
+            .read_to_string(&mut json)
+            .expect("decompress embedded OpenAPI");
+        json
+    })
+}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Operation {
@@ -13,7 +29,7 @@ pub struct Operation {
 }
 
 pub fn spec() -> Result<Value> {
-    serde_json::from_str(OPENAPI_JSON).map_err(Into::into)
+    serde_json::from_str(openapi_json()).map_err(Into::into)
 }
 
 pub fn operations() -> Result<Vec<Operation>> {
