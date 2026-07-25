@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+
+- Shrink the release binary with thin LTO, symbol stripping, and a single codegen unit.
+
 ## 0.1.0 (2026-07-18)
 
 - Add Timely API CLI with curated `api` commands for clients, teams, projects,
