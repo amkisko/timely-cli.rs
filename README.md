@@ -10,7 +10,8 @@ macOS.
 
 ## Install
 
-Cargo (from source):
+Cargo (from source). On Linux, install `libdbus-1-dev` and `pkg-config` first
+for the Secret Service keyring backend.
 
 ```sh
 cargo install --path timely --locked
