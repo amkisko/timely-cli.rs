@@ -14,6 +14,7 @@ mod cli;
 mod cli_commands;
 mod cli_config;
 mod cli_error;
+#[cfg(feature = "memory")]
 mod cli_memory;
 mod cli_util;
 mod commands;
@@ -25,6 +26,7 @@ mod exit;
 mod export_io;
 mod man;
 mod mcp;
+#[cfg(feature = "memory")]
 mod memory;
 mod oauth;
 mod output;

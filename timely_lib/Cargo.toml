@@ -8,6 +8,10 @@ repository.workspace = true
 homepage.workspace = true
 description = "Timely API client library"
 
+[features]
+default = ["memory"]
+memory = ["dep:rusqlite"]
+
 [build-dependencies]
 flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
 heck = "0.5"
@@ -19,7 +23,7 @@ base64 = "0.22"
 flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
 keyring = { version = "3.6", features = ["apple-native", "windows-native", "sync-secret-service"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
-rusqlite = { version = "0.40", features = ["bundled"] }
+rusqlite = { version = "0.40", features = ["bundled"], optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 sha2 = "0.11"

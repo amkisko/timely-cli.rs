@@ -8,6 +8,10 @@ repository.workspace = true
 homepage.workspace = true
 description = "Timely API CLI, MCP server, and local Memory reader"
 
+[features]
+default = ["memory"]
+memory = ["timely_lib/memory"]
+
 [lib]
 name = "timely_cli"
 path = "src/lib.rs"
@@ -17,7 +21,7 @@ name = "timely"
 path = "src/main.rs"
 
 [dependencies]
-timely_lib = { path = "../timely_lib" }
+timely_lib = { path = "../timely_lib", default-features = false }
 anyhow = "1.0"
 base64 = "0.22"
 clap = { version = "4.5", features = ["derive", "env"] }

@@ -17,6 +17,7 @@ use crate::confirm::ConfirmOptions;
 use crate::exit::AppExit;
 use crate::man;
 use crate::mcp;
+#[cfg(feature = "memory")]
 use crate::memory;
 use crate::output::{self, OutputFormat, OutputMode};
 use crate::run_context::RunContext;
@@ -143,6 +144,7 @@ async fn run_async(cli: Cli, error_context: ErrorContext) -> Result<(), AppExit>
                 .map_err(TimelyError::from_anyhow),
             &run_context,
         ),
+        #[cfg(feature = "memory")]
         Commands::Memory(cmd) => match memory::run_memory(cmd) {
             Ok(Some(value)) => emit_result(Ok(value), &run_context),
             Ok(None) => Ok(()),

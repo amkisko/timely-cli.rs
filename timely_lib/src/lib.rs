@@ -17,6 +17,7 @@ pub mod config;
 mod config_keys;
 mod config_parse;
 pub mod error;
+#[cfg(feature = "memory")]
 pub mod memory_db;
 pub mod oauth;
 pub mod openapi;

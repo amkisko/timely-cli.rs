@@ -16,6 +16,7 @@ fn auth_export_help_documents_file_flag() {
         .stdout(predicate::str::contains("--file"));
 }
 
+#[cfg(feature = "memory")]
 #[test]
 fn memory_export_help_documents_filters() {
     timely()
@@ -28,6 +29,7 @@ fn memory_export_help_documents_filters() {
         .stdout(predicate::str::contains("--file"));
 }
 
+#[cfg(feature = "memory")]
 #[test]
 fn memory_export_missing_db_returns_clear_error() {
     let missing = std::env::temp_dir().join(format!(
@@ -43,4 +45,15 @@ fn memory_export_missing_db_returns_clear_error() {
         .assert()
         .failure()
         .stderr(predicate::str::contains("Memory database not found"));
+}
+
+#[cfg(not(feature = "memory"))]
+#[test]
+fn memory_command_is_unavailable_without_memory_feature() {
+    timely().arg("memory").assert().failure();
+    timely()
+        .arg("--help")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("local Memory reader").not());
 }
