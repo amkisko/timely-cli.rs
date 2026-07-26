@@ -28,7 +28,7 @@ const FALLBACK_OPENAPI: &str = r#"{
 }"#;
 const OPENAPI_RELATIVE_PATHS: &[&str] = &["openapi/openapi.json", "../tmp/openapi/openapi.json"];
 
-fn resolve_openapi_path(root: &PathBuf) -> PathBuf {
+fn resolve_openapi_path(root: &std::path::Path) -> PathBuf {
     for relative in OPENAPI_RELATIVE_PATHS {
         let candidate = root.join(relative);
         if candidate.is_file() {
