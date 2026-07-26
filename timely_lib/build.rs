@@ -26,10 +26,7 @@ const FALLBACK_OPENAPI: &str = r#"{
     "schemas": {}
   }
 }"#;
-const OPENAPI_RELATIVE_PATHS: &[&str] = &[
-    "openapi/openapi.json",
-    "../tmp/openapi/openapi.json",
-];
+const OPENAPI_RELATIVE_PATHS: &[&str] = &["openapi/openapi.json", "../tmp/openapi/openapi.json"];
 
 fn resolve_openapi_path(root: &PathBuf) -> PathBuf {
     for relative in OPENAPI_RELATIVE_PATHS {
@@ -79,9 +76,7 @@ fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("out dir"));
     let openapi_gz_out = out_dir.join("openapi.json.gz");
     let mut encoder = GzEncoder::new(Vec::new(), Compression::best());
-    encoder
-        .write_all(&spec)
-        .expect("compress OpenAPI payload");
+    encoder.write_all(&spec).expect("compress OpenAPI payload");
     let compressed = encoder.finish().expect("finish OpenAPI gzip");
     fs::write(&openapi_gz_out, compressed).expect("write generated OpenAPI gzip");
 
