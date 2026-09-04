@@ -3,9 +3,10 @@ use clap::{Parser, Subcommand, ValueEnum};
 use crate::api_cli::ApiCommand;
 
 pub use crate::cli_commands::{
-    AuthCommand, AuthSubcommand, CallCommand, DEFAULT_BASE_URL, DEFAULT_OAUTH_REDIRECT_URI,
-    DEFAULT_PROFILE, HttpVerb, McpCommand, McpSubcommand, OauthCommand, RequestCommand,
-    SecretProvider, SourceCommand, SpecCommand, SpecSubcommand,
+    AuthCommand, AuthRunWithArgs, AuthSinkArgs, AuthSourceArgs, AuthSubcommand, AuthTokenArgs,
+    BitwardenSecretArgs, CallCommand, DEFAULT_BASE_URL, DEFAULT_OAUTH_REDIRECT_URI,
+    DEFAULT_PROFILE, HttpVerb, KeepassSecretArgs, McpCommand, McpSubcommand, OauthCommand,
+    OnepasswordSecretArgs, RequestCommand, SecretProviderCommand, SpecCommand, SpecSubcommand,
 };
 pub use crate::cli_config::{ConfigCommand, ConfigSubcommand};
 #[cfg(feature = "memory")]

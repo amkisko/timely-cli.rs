@@ -63,8 +63,16 @@ impl StoredCredential {
 }
 
 pub fn auth_status_value(api: &Api) -> Result<Value> {
+    let location = crate::credential_store::profile_credential_location(&api.profile)?;
+    let backend = crate::credential_settings::credential_backend()?;
     let mut value = json!({
         "profile": api.profile,
+        "keyring_backend": crate::credential_store::keyring_backend_label(),
+        "credential_storage": crate::credential_store::location_label(location),
+        "credential_backend": match backend {
+            crate::credential_store::StorageBackend::Keyring => "keyring",
+            crate::credential_store::StorageBackend::File => "file",
+        },
         "token_configured": false,
         "account_id": null,
         "refresh_token": "not available",

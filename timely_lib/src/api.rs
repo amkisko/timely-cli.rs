@@ -2,13 +2,13 @@ use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use anyhow::{Context, Result};
-use keyring::Entry;
+use anyhow::Result;
 use reqwest::Client;
 
 use crate::auth::StoredCredential;
-
-const SERVICE: &str = "timely-cli";
+use crate::credential_store::{
+    delete_profile_credential, load_profile_credential, store_profile_credential, StorageBackend,
+};
 
 #[derive(Clone, Debug)]
 pub struct Api {
@@ -53,43 +53,27 @@ impl Api {
     }
 
     pub fn store_credential(&self, credential: StoredCredential) -> Result<()> {
-        let value = serde_json::to_string(&credential)?;
-        self.keyring_entry()?
-            .set_password(&value)
-            .context("failed to store credential in OS keyring")
+        store_profile_credential(
+            &self.profile,
+            &credential,
+            crate::credential_settings::credential_backend()?,
+        )
+    }
+
+    pub fn store_credential_with_backend(
+        &self,
+        credential: StoredCredential,
+        backend: StorageBackend,
+    ) -> Result<()> {
+        store_profile_credential(&self.profile, &credential, backend)
     }
 
     pub fn load_credential(&self) -> Result<Option<StoredCredential>> {
-        let entry = match self.keyring_entry() {
-            Ok(entry) => entry,
-            // No Secret Service / keyring backend (common on CI runners).
-            Err(_) => return Ok(None),
-        };
-        match entry.get_password() {
-            Ok(value) => Ok(Some(serde_json::from_str(&value)?)),
-            Err(keyring::Error::NoEntry)
-            | Err(keyring::Error::NoStorageAccess(_))
-            | Err(keyring::Error::PlatformFailure(_)) => Ok(None),
-            Err(err) => Err(err).context("failed to read credential from OS keyring"),
-        }
+        load_profile_credential(&self.profile)
     }
 
     pub fn delete_credential(&self) -> Result<()> {
-        let entry = match self.keyring_entry() {
-            Ok(entry) => entry,
-            Err(_) => return Ok(()),
-        };
-        match entry.delete_credential() {
-            Ok(())
-            | Err(keyring::Error::NoEntry)
-            | Err(keyring::Error::NoStorageAccess(_))
-            | Err(keyring::Error::PlatformFailure(_)) => Ok(()),
-            Err(err) => Err(err).context("failed to delete credential from OS keyring"),
-        }
-    }
-
-    pub(crate) fn keyring_entry(&self) -> Result<Entry> {
-        Entry::new(SERVICE, &self.profile).context("failed to open OS keyring entry")
+        delete_profile_credential(&self.profile)
     }
 }
 

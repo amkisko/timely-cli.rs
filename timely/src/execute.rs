@@ -55,12 +55,15 @@ pub fn command_allowed_in_batch(command: &Commands) -> Result<(), TimelyError> {
         )),
         Commands::Auth(AuthArgs {
             command:
-                AuthSubcommand::Token { .. }
+                AuthSubcommand::Token(_)
                 | AuthSubcommand::Logout
                 | AuthSubcommand::Source(_)
+                | AuthSubcommand::Sink(_)
+                | AuthSubcommand::RunWith(_)
                 | AuthSubcommand::Oauth(_),
         }) => Err(TimelyError::Usage(
-            "auth token/logout/oauth/source cannot run inside batch (state-changing)".to_string(),
+            "auth token/logout/oauth/source/sink/run-with cannot run inside batch (state-changing)"
+                .to_string(),
         )),
         Commands::Config(ConfigArgs {
             command: ConfigSubcommand::Set { .. } | ConfigSubcommand::Unset { .. },

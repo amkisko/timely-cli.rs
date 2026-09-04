@@ -10,8 +10,7 @@ macOS.
 
 ## Install
 
-Cargo (from source). On Linux, install `libdbus-1-dev` and `pkg-config` first
-for the Secret Service keyring backend.
+Cargo (from source). On Linux, install `libdbus-1-dev` and `pkg-config` for Secret Service (libsecret; D-Bus encrypted via `crypto-rust`).
 
 ```sh
 cargo install --path timely --locked
@@ -88,16 +87,19 @@ manager.
 
 ## Auth
 
-Prefer a password manager or a token file so the secret stays out of shell
-history and process listings:
+Confidential storage is the default (OS keychain). Plain credential files are **opt-in** (`--use-file` on `auth token`, `auth source`, or `auth oauth`). `settings.json` in `TIMELY_HOME` records the backend; legacy plain files migrate to keychain on first use.
+
+Prefer a password manager or a token file so the secret stays out of shell history:
 
 ```sh
-timely auth source onepassword --reference op://Vault/Timely/token
+timely auth source onepassword --account my --reference op://Vault/Timely/token
 timely auth source bitwarden --item timely-api-token
-timely auth source keepass --database ~/Secrets.kdbx --item Timely --field Password
+timely auth sink --from-profile onepassword --item Timely --field token
+timely auth run-with -- curl -H "Authorization: Bearer $TIMELY_TOKEN" ...
 timely auth token --token-file ~/.config/timely/token
-printf '%s' "$TIMELY_TOKEN" | timely auth token --token-file -
 ```
+
+1Password auto-runs `op signin --raw` without `OP_SESSION*`; Bitwarden needs `bw unlock`. `auth status`/`export` report `keyring_backend`, `credential_storage`, and `credential_backend`.
 
 Inline `--token` still works when needed:
 
