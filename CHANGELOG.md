@@ -2,8 +2,16 @@
 
 ## Unreleased
 
+- Fix OAuth CLI test compile after adding `use_file` to `OauthCommand`.
+- Split oversized `secrets` and `cli_commands` modules to satisfy the QA file
+  size gate; wrap long README lines; exclude pray-managed community docs from
+  that scan.
+- Restrict opt-in plain credential files to owner-only Unix modes (`0600` /
+  directory `0700`).
+- Document `--no-default-features` install for builds without Memory.
 - Make the local Memory reader optional for smaller builds that do not need it.
-- Embed the OpenAPI document as gzip instead of raw JSON to shrink the release binary.
+- Embed the OpenAPI document as gzip instead of raw JSON to shrink the release
+  binary.
 
 ## 0.1.1 (2026-07-25)
 

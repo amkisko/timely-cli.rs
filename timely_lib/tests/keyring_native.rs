@@ -1,7 +1,7 @@
 //! Verifies keyring platform features are enabled (not the in-memory mock store).
 
 use keyring::Entry;
-use timely_lib::{keyring_backend_label, KEYRING_SERVICE};
+use timely_lib::{KEYRING_SERVICE, keyring_backend_label};
 
 #[test]
 fn reports_platform_keyring_backend() {

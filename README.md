@@ -10,12 +10,14 @@ macOS.
 
 ## Install
 
-Cargo (from source). On Linux, install `libdbus-1-dev` and `pkg-config` for Secret Service (libsecret; D-Bus encrypted via `crypto-rust`).
+Cargo (from source). On Linux, install `libdbus-1-dev` and `pkg-config` for
+Secret Service (libsecret; D-Bus encrypted via `crypto-rust`).
 
 ```sh
 cargo install --path timely --locked
 # or from git
 cargo install --git https://github.com/amkisko/timely-cli.rs --package timely-cli --locked
+# omit Memory (smaller binary): add --no-default-features
 ```
 
 [bmx](https://github.com/amkisko/bmx.rs) installs, builds, and runs software
@@ -87,7 +89,9 @@ manager.
 
 ## Auth
 
-Confidential storage is the default (OS keychain). Plain credential files are **opt-in** (`--use-file` on `auth token`, `auth source`, or `auth oauth`). `settings.json` in `TIMELY_HOME` records the backend; legacy plain files migrate to keychain on first use.
+Confidential storage defaults to the OS keychain. Plain files are **opt-in**
+(`--use-file` on `auth token`, `auth source`, or `auth oauth`). `settings.json`
+in `TIMELY_HOME` records the backend; legacy plain files migrate on first use.
 
 Prefer a password manager or a token file so the secret stays out of shell history:
 
@@ -99,7 +103,8 @@ timely auth run-with -- curl -H "Authorization: Bearer $TIMELY_TOKEN" ...
 timely auth token --token-file ~/.config/timely/token
 ```
 
-1Password auto-runs `op signin --raw` without `OP_SESSION*`; Bitwarden needs `bw unlock`. `auth status`/`export` report `keyring_backend`, `credential_storage`, and `credential_backend`.
+1Password auto-runs `op signin --raw` without `OP_SESSION*`; Bitwarden needs
+`bw unlock`. Status/export report `keyring_backend` and credential fields.
 
 Inline `--token` still works when needed:
 
@@ -115,15 +120,12 @@ timely auth oauth \
   --client-secret-file ~/.config/timely/client-secret
 ```
 
-The CLI defaults to Timely's out-of-band redirect URI,
-`urn:ietf:wg:oauth:2.0:oob`.
-It prints the authorization URL, then prompts you to paste the code that Timely shows after approval.
-Pass `--open` if you want it to launch your browser for you.
-If you prefer a local callback listener, override `--redirect-uri`
-with a loopback HTTP URL such as `http://127.0.0.1:8765/callback`.
-OAuth credentials are stored in the platform keyring and refresh automatically.
-`account_id` is resolved automatically when possible and is written to `.env`
-or `TIMELY_ENV_FILE` when either file is available.
+Default redirect is out-of-band (`urn:ietf:wg:oauth:2.0:oob`): the CLI prints
+the authorize URL, then prompts for the code Timely shows after approval. Pass
+`--open` to launch a browser, or set `--redirect-uri` to a loopback URL such as
+`http://127.0.0.1:8765/callback`. Credentials land in the platform keyring and
+refresh automatically. `account_id` is resolved when possible and written to
+`.env` or `TIMELY_ENV_FILE` when either file is available.
 
 Export a redacted snapshot of local auth state (keyring fingerprints, env key
 presence, process cache). Secrets are never printed:
@@ -219,25 +221,12 @@ timely api me --plain
 
 ## Environment
 
-- `TIMELY_HOME` — config directory (default `~/.config/timely`)
-- `TIMELY_TOKEN` — bearer token for `auth token`
-- `TIMELY_CLIENT_ID` — OAuth client ID
-- `TIMELY_CLIENT_SECRET` — OAuth client secret
-- `TIMELY_REDIRECT_URI` — OAuth redirect URI
-- `TIMELY_REFRESH_TOKEN` — OAuth refresh token (runtime)
-- `TIMELY_ACCOUNT_ID` — default account ID
-- `TIMELY_PROFILE` — credential profile name
-- `TIMELY_BASE_URL` — API base URL
-- `TIMELY_OUTPUT` — `auto`, `plain`, or `json`
-- `TIMELY_TIMEOUT` — HTTP timeout in seconds
-- `TIMELY_DEBUG` — enable debug details
-- `TIMELY_NO_COLOR` — disable color for this CLI
-- `TIMELY_ENV_FILE` — alternate `.env` path for auth persistence
-- `TIMELY_MEMORY_DB` — local Memory database path
-- `NO_COLOR` — disable color (standard)
-- `FORCE_COLOR` — force color when set
-- `PAGER` — pager for long human output
-- `COLUMNS` / `LINES` — terminal size hints
+Primary knobs: `TIMELY_HOME`, `TIMELY_TOKEN`, `TIMELY_CLIENT_ID`,
+`TIMELY_CLIENT_SECRET`, `TIMELY_REDIRECT_URI`, `TIMELY_REFRESH_TOKEN`,
+`TIMELY_ACCOUNT_ID`, `TIMELY_PROFILE`, `TIMELY_BASE_URL`, `TIMELY_OUTPUT`,
+`TIMELY_TIMEOUT`, `TIMELY_DEBUG`, `TIMELY_NO_COLOR`, `TIMELY_ENV_FILE`,
+`TIMELY_MEMORY_DB`. Also honors `NO_COLOR`, `FORCE_COLOR`, `PAGER`,
+`COLUMNS`, and `LINES`. Run `timely config list` for the mapped keys.
 
 ## MCP
 
@@ -286,12 +275,8 @@ public issue. See [SECURITY.md](SECURITY.md).
 
 ## Links
 
-- [GitHub](https://github.com/amkisko/timely-cli.rs)
-- [GitLab](https://gitlab.com/amkisko/timely-cli.rs)
-- [SonarCloud](https://sonarcloud.io/project/overview?id=amkisko_timely-cli.rs)
-- [Snyk](https://snyk.io/test/github/amkisko/timely-cli.rs)
-- [Codecov](https://app.codecov.io/github/amkisko/timely-cli.rs)
-- [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/amkisko/timely-cli.rs)
+GitHub, GitLab, SonarCloud, Snyk, Codecov, and OpenSSF Scorecard are linked
+from the repository profile and CI badges.
 
 ## License
 

@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde_json::Value;
 use std::process::Command;
 
@@ -9,12 +9,12 @@ use crate::cli::{
 };
 use crate::export_io;
 use crate::oauth::run_oauth_flow;
+use timely_lib::util::{read_secret_value, token_fingerprint};
 use timely_lib::{
-    fetch_secret, provider_label, storage_backend, store_secret, Api, SecretProvider as LibSecretProvider,
-    SecretRef, StoredCredential,
+    Api, SecretProvider as LibSecretProvider, SecretRef, StoredCredential, fetch_secret,
+    provider_label, storage_backend, store_secret,
 };
 use timely_lib::{auth_export_value, auth_status_value};
-use timely_lib::util::{read_secret_value, token_fingerprint};
 
 pub async fn run_auth(api: &Api, cmd: AuthCommand) -> Result<Option<Value>> {
     match cmd.command {
@@ -95,9 +95,9 @@ fn run_with(api: &Api, args: AuthRunWithArgs) -> Result<()> {
     if args.command.is_empty() {
         bail!("provide a command after `--`");
     }
-    let credential = api.load_credential()?.ok_or_else(|| {
-        anyhow::anyhow!("no stored credentials for profile '{}'", api.profile)
-    })?;
+    let credential = api
+        .load_credential()?
+        .ok_or_else(|| anyhow::anyhow!("no stored credentials for profile '{}'", api.profile))?;
     let mut command = Command::new(&args.command[0]);
     command
         .args(&args.command[1..])
@@ -115,12 +115,7 @@ async fn run_oauth(api: &Api, oauth: OauthCommand) -> Result<()> {
     credential.oauth_client_id = Some(oauth.client_id);
     credential.oauth_client_secret = client_secret;
     let credential = api.prepare_credential(credential).await?;
-    store_credential(
-        api,
-        credential,
-        "Stored OAuth credentials",
-        oauth.use_file,
-    )?;
+    store_credential(api, credential, "Stored OAuth credentials", oauth.use_file)?;
     Ok(())
 }
 
@@ -156,9 +151,7 @@ fn resolve_sink_token(
         return api
             .load_credential()?
             .map(|credential| credential.access_token)
-            .ok_or_else(|| {
-                anyhow::anyhow!("no stored credentials for profile '{}'", api.profile)
-            });
+            .ok_or_else(|| anyhow::anyhow!("no stored credentials for profile '{}'", api.profile));
     }
     resolve_token_input(token, token_file)
 }
@@ -180,7 +173,9 @@ fn store_credential(
     println!("{label} for profile '{}' in {backend_label}.", api.profile);
     if let Some(account_id) = account_id {
         println!("Default account: {account_id}");
-        if let Some(path) = timely_lib::runtime_env::set("TIMELY_ACCOUNT_ID", &account_id.to_string())? {
+        if let Some(path) =
+            timely_lib::runtime_env::set("TIMELY_ACCOUNT_ID", &account_id.to_string())?
+        {
             println!("Stored TIMELY_ACCOUNT_ID in {path}.");
         }
     }

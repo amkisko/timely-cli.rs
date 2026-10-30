@@ -129,7 +129,12 @@ fn is_excluded_policy_file(path: &Path, root: &Path) -> bool {
         .is_some_and(|p| {
             matches!(
                 p,
-                "CODE_OF_CONDUCT.md" | "SECURITY.md" | "AGENTS.md" | "Prayfile.lock"
+                "CODE_OF_CONDUCT.md"
+                    | "SECURITY.md"
+                    | "CONTRIBUTING.md"
+                    | "GOVERNANCE.md"
+                    | "AGENTS.md"
+                    | "Prayfile.lock"
             ) || p.starts_with(".agents/")
         })
 }

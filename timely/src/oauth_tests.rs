@@ -196,5 +196,6 @@ fn oauth_command(redirect_uri: &str) -> OauthCommand {
         redirect_uri: redirect_uri.to_string(),
         open: false,
         no_open: false,
+        use_file: false,
     }
 }

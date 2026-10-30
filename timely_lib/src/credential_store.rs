@@ -94,8 +94,9 @@ fn load_profile_keyring(profile: &str) -> Result<Option<StoredCredential>> {
     }
     if credential_file_path(profile)?.exists() {
         let path = credential_file_path(profile)?;
-        let credential = load_credential_file(profile)?
-            .context("Plain credential file exists but could not be parsed for keychain migration")?;
+        let credential = load_credential_file(profile)?.context(
+            "Plain credential file exists but could not be parsed for keychain migration",
+        )?;
         store_keyring(profile, &serde_json::to_string(&credential)?).with_context(|| {
             format!(
                 "Plain credential file at {} found but OS keychain is unavailable. \
@@ -153,8 +154,34 @@ fn save_credential_file(profile: &str, credential: &StoredCredential) -> Result<
     let path = credential_file_path(profile)?;
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
+        restrict_dir_mode(parent)?;
     }
-    std::fs::write(path, serde_json::to_vec_pretty(credential)?)?;
+    std::fs::write(&path, serde_json::to_vec_pretty(credential)?)?;
+    restrict_file_mode(&path)?;
+    Ok(())
+}
+
+#[cfg(unix)]
+fn restrict_dir_mode(path: &std::path::Path) -> Result<()> {
+    use std::os::unix::fs::PermissionsExt;
+    std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o700))?;
+    Ok(())
+}
+
+#[cfg(not(unix))]
+fn restrict_dir_mode(_path: &std::path::Path) -> Result<()> {
+    Ok(())
+}
+
+#[cfg(unix)]
+fn restrict_file_mode(path: &std::path::Path) -> Result<()> {
+    use std::os::unix::fs::PermissionsExt;
+    std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o600))?;
+    Ok(())
+}
+
+#[cfg(not(unix))]
+fn restrict_file_mode(_path: &std::path::Path) -> Result<()> {
     Ok(())
 }
 
@@ -237,5 +264,23 @@ mod tests {
     fn storage_backend_selects_file_only_when_opted_in() {
         assert_eq!(storage_backend(false), StorageBackend::Keyring);
         assert_eq!(storage_backend(true), StorageBackend::File);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn plain_credential_modes_are_owner_only() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let root = tempfile::tempdir().unwrap();
+        let dir = root.path().join("credentials");
+        std::fs::create_dir_all(&dir).unwrap();
+        restrict_dir_mode(&dir).unwrap();
+        let path = dir.join("work.json");
+        std::fs::write(&path, b"{}").unwrap();
+        restrict_file_mode(&path).unwrap();
+        let file_mode = std::fs::metadata(&path).unwrap().permissions().mode() & 0o777;
+        let dir_mode = std::fs::metadata(&dir).unwrap().permissions().mode() & 0o777;
+        assert_eq!(file_mode, 0o600);
+        assert_eq!(dir_mode, 0o700);
     }
 }

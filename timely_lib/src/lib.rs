@@ -12,12 +12,12 @@ pub mod api_templates_private_runtime;
 pub mod api_templates_runtime;
 pub mod api_templates_team;
 pub mod api_templates_team_runtime;
-pub mod credential_settings;
-pub mod credential_store;
 pub mod auth;
 pub mod config;
 mod config_keys;
 mod config_parse;
+pub mod credential_settings;
+pub mod credential_store;
 pub mod error;
 #[cfg(feature = "memory")]
 pub mod memory_db;
@@ -29,17 +29,17 @@ pub mod util;
 
 pub use api::Api;
 pub use auth::{StoredCredential, auth_export_value, auth_status_value};
-pub use credential_store::{
-    keyring_backend_label, location_label, profile_credential_location, storage_backend,
-    CredentialLocation, KEYRING_SERVICE, StorageBackend,
-};
 pub use config::{
     ConfigEntry, ConfigSource, config_file_path, ensure_home_config_loaded, friendly_config_key,
     get_config_entry, list_config_entries, resolve_config_key, set_config_entry, timely_home,
     unset_config_entry,
 };
+pub use credential_store::{
+    CredentialLocation, KEYRING_SERVICE, StorageBackend, keyring_backend_label, location_label,
+    profile_credential_location, storage_backend,
+};
 pub use error::TimelyError;
 pub use oauth::{OAuthExchange, credential_from_token_response, exchange_authorization_code};
-pub use secrets::{fetch_secret, provider_label, store_secret, SecretProvider, SecretRef};
+pub use secrets::{SecretProvider, SecretRef, fetch_secret, provider_label, store_secret};
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

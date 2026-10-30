@@ -7,7 +7,7 @@ use reqwest::Client;
 
 use crate::auth::StoredCredential;
 use crate::credential_store::{
-    delete_profile_credential, load_profile_credential, store_profile_credential, StorageBackend,
+    StorageBackend, delete_profile_credential, load_profile_credential, store_profile_credential,
 };
 
 #[derive(Clone, Debug)]
